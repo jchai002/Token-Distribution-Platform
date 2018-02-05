@@ -17,11 +17,12 @@ contract("Vault", accounts => {
   const destination = accounts[2];
   const approval_needed_threshold = 50;
   var token, vault;
-  // function Vault(address _spender, address _admin, uint _approval_needed_threshold)
 
   beforeEach(async () => {
     token = await TestToken.new();
-    vault = await Vault.new(token, spender, admin, approval_needed_threshold);
+    vault = await Vault.new(spender, admin, approval_needed_threshold);
+    await vault.setTokenContract(token.address);
+    await token.mint(vault.address, 888888888);
   });
 
   it("has a token", async () => {
