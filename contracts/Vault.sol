@@ -1,86 +1,85 @@
-pragma solidity ^0.4.15;
+pragma solidity 0.4.18;
 
-import "./TestToken.sol";
-import "./deps/Ownable.sol";
+import "./deps/Owned.sol";
+import "./deps/ERC20.sol";
 
-contract Vault is Ownable {
+contract Vault is Owned {
 
-    /*
-     *  Storage
-     */
-    TestToken public token;
+    struct Pending {
+        address receiver;
+        uint256 amount;
+        bool approved;
+    }
+
+    ERC20 public token;
+    uint256 public threshold;
+
     address public admin;
     address public spender;
-    uint public approval_needed_threshold;
 
-    struct Transaction {
-        address destination;
-        uint value;
-        bytes data;
-        bool executed;
-    }
 
-    /*
-     *  Events
-     */
+    Pending[] public pendings;
 
-    /*
-     *  Modifiers
-     */
+    event Approved(uint id);
+    event AddedToPending(uint transferId);
+    event Sent(address receiver, uint amount);
 
-    modifier notNull(address _address) {
-        require(_address != 0);
-        _;
-    }
-
-    modifier onlySpender() {
-        require(msg.sender == spender);
-        _;
+    modifier isPending(uint _id) {
+        if (_id < pendings.length && !pendings[_id].approved) {
+            _;
+        }
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == admin);
-        _;
+        if (msg.sender == admin) {
+            _;
+        }
     }
 
-
-    /*
-     * Public functions
-     */
-
-    function Vault(address _spender, address _admin, uint _approval_needed_threshold)
-        public
-    {
-      spender = _spender;
-      admin = _admin;
-      approval_needed_threshold = _approval_needed_threshold;
+    modifier onlySpender() {
+        if (msg.sender == spender) {
+            _;
+        }
     }
 
-    function setTokenContract(address _token_contract) onlyOwner() public {
-      token = TestToken(_token_contract);
+    function Vault(address _token, uint256 _threshold) public {
+        token = ERC20(_token);
+        threshold = _threshold;
+        admin = msg.sender;
+        spender = msg.sender;
     }
 
-    /*
-    * @dev if called by the allows the spender, transfer the _amount number of tokens to _destination, if the _amount is greater than _approval_needed_threshold, the admin must confirm the transaction
-    */
-    function spendToken(address _destination, uint _amount)
-      notNull(_destination)
-      onlySpender()
-      public
-    {
-      /* some checking logic */
-      if (true) {
-        /* is this transferring the token balance from the vault or msg.sender? Please help me confirm */
-        token.transfer(_destination, _amount);
-      }
+    function setToken(address _token) public onlyContractOwner {
+        token = ERC20(_token);
     }
 
-    function approveAndExecuteTransaction()
-      onlyAdmin()
-      public 
-    {
-      /* get the tx from the pending pool and execute it */
+    function setAdmin(address _admin) public onlyContractOwner {
+        admin = _admin;
     }
 
+    function setSpender(address _spender) public onlyContractOwner {
+        spender = _spender;
+    }
 
+    function sendTokenTo(address _destination, uint256 _amount) public onlySpender {
+        if (_amount >= threshold) {
+            pendings.push(Pending({
+                receiver: _destination,
+                amount: _amount,
+                approved: false
+            }));
+            AddedToPending(pendings.length - 1);
+        } else {
+            token.transfer(_destination, _amount);
+            Sent(_destination, _amount);
+        }
+    }
+
+    function confirm(uint _id) public onlyAdmin isPending(_id) {
+        Pending storage _pending = pendings[_id];
+        token.transfer(_pending.receiver, _pending.amount);
+        Approved(_id);
+        Sent(_pending.receiver, _pending.amount);
+        _pending.approved = true;
+    }
 }
