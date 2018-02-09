@@ -8,8 +8,8 @@ const should = require("chai")
   .use(require("chai-bignumber")(BigNumber))
   .should();
 
-let TokenSale = artifacts.require("./TokenSale.sol");
-let TestToken = artifacts.require("./TestToken.sol");
+const TokenSale = artifacts.require("./TokenSale.sol");
+const TestToken = artifacts.require("./TestToken.sol");
 
 contract("Vault", accounts => {
   const owner = accounts[0];
