@@ -20,9 +20,11 @@ const ropstenProvider = process.env.SOLIDITY_COVERAGE
 module.exports = {
   networks: {
     development: {
-      host: "localhost",
+      host: "localhost", // Connect to geth on the specified port
       port: 8545,
-      network_id: "*" // eslint-disable-line camelcase
+      from: "0x11f0cdddd75259b02418e5c116d904621632a590", // default address to use for any transaction Truffle makes during migrations
+      network_id: 4,
+      gas: 6500000
     },
     ropsten: {
       provider: ropstenProvider,
@@ -48,10 +50,9 @@ module.exports = {
     rinkeby: {
       host: "localhost", // Connect to geth on the specified port
       port: 8545,
-      from: "0x2cdb7e99ec3db8254650e72e4d87087b4dfae176", // default address to use for any transaction Truffle makes during migrations
+      from: "0x11f0cdddd75259b02418e5c116d904621632a590", // default address to use for any transaction Truffle makes during migrations
       network_id: 4,
-      gas: 6500000,
-      gasPrice: 100000000000
+      gas: 6500000
     }
   }
 };
