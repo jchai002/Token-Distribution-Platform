@@ -1,8 +1,10 @@
 const TokenSale = artifacts.require("./TokenSale.sol");
 const TestToken = artifacts.require("./TestToken.sol");
+const Hello = artifacts.require("./Hello.sol");
 
 module.exports = function(deployer, network, accounts) {
-  deployContracts(deployer, accounts);
+  // deployContracts(deployer, accounts);
+  deployer.deploy(Hello);
 };
 
 async function deployContracts(deployer, accounts) {
@@ -46,3 +48,5 @@ async function deployContracts(deployer, accounts) {
 // sale address balance BigNumber { s: 1, e: 9, c: [ 1000000000 ] }
 //   ... 0x70e1a04ce9ad9164d6eb6670ef170a572cc0b9dbdc4b795feb9e27645566170a
 // spender balance BigNumber { s: 1, e: 8, c: [ 888888888 ] }
+
+// successful https://rinkeby.etherscan.io/tx/0x3980bfb73106a87350de0cf92385cc31b9a627ec778a0d331866813377a07575

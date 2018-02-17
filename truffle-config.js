@@ -17,6 +17,7 @@ const ropstenProvider = process.env.SOLIDITY_COVERAGE
   ? undefined
   : infuraProvider("ropsten");
 
+const rinkebyProvider = infuraProvider("rinkeby");
 module.exports = {
   networks: {
     development: {
@@ -46,12 +47,8 @@ module.exports = {
       network_id: "*" // eslint-disable-line camelcase
     },
     rinkeby: {
-      host: "localhost", // Connect to geth on the specified port
-      port: 8545,
-      from: "0x2cdb7e99ec3db8254650e72e4d87087b4dfae176", // default address to use for any transaction Truffle makes during migrations
-      network_id: 4,
-      gas: 6500000,
-      gasPrice: 100000000000
+      provider: rinkebyProvider,
+      network_id: 4
     }
   }
 };
