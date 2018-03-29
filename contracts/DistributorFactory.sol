@@ -5,12 +5,12 @@ import "./Distributor.sol";
 
 contract DistributorFactory is Ownable {
 
-    function deployDistributor(address _token, uint _rate, address _thirdPartyWallet, address _internalWallet, address _admin)
+    function deployDistributor(address _token, uint _rate, address _thirdPartyWallet, address _internalWallet, address _controller)
       public
       returns(address)
     {
       Distributor distributor = new Distributor(_token, _rate, _thirdPartyWallet, _internalWallet);
-      distributor.transferOwnership(_admin);
+      distributor.transferOwnership(_controller);
       return address(distributor);
     }
 

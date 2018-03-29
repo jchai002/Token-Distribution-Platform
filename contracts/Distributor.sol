@@ -36,6 +36,7 @@ contract Distributor is Ownable {
       }
 
     function distribute(address _to, uint _amount)
+      onlyOwner
       public
     {
         token.transfer(_to, _amount);
