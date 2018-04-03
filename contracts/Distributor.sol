@@ -8,7 +8,7 @@ contract Distributor is Ownable {
     using SafeMath for uint256;
 
     ERC20 public token;
-    address public thirdPartyWallet;
+    address public appWallet;
     address public internalWallet;
 
     // how many token units a buyer gets per wei
@@ -26,12 +26,12 @@ contract Distributor is Ownable {
     event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
     event TokenDistribution(address indexed to, uint256 amount);
 
-      function Distributor(address _token, uint256 _rate, address _thirdPartyWallet, address _internalWallet)
+      function Distributor(address _token, uint256 _rate, address _appWallet, address _internalWallet)
         public
       {
           token = ERC20(_token);
           rate = _rate;
-          thirdPartyWallet = _thirdPartyWallet;
+          appWallet = _appWallet;
           internalWallet = _internalWallet;
       }
 
@@ -70,7 +70,7 @@ contract Distributor is Ownable {
     function forwardFunds()
       internal
     {
-      thirdPartyWallet.transfer(msg.value.mul(95).div(100));
+      appWallet.transfer(msg.value.mul(95).div(100));
       internalWallet.transfer(msg.value.mul(5).div(100));
     }
 

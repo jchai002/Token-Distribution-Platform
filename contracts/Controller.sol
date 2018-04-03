@@ -7,41 +7,42 @@ contract Controller is Ownable {
   struct App {
     string app;
     string description;
+    string tokenSymbol;
     address tokenAddress;
     address distributorAddress;
   }
 
-  /* mapping of token symbol to app */
-  mapping (string => App) apps;
+  /* mapping of token address to app */
+  mapping (address => App) apps;
 
-  function addApp(string _tokenSymbol, string _app, string _description, address _tokenAddress, address _distributorAddress)
+  function addApp(address _tokenAddress, string _app, string _description, string _tokenSymbol, address _distributorAddress)
       onlyOwner
       public
   {
     // store this app with tokenSymbol as key and app info as value
-    apps[_tokenSymbol] = App(
+    apps[_tokenAddress] = App(
       _app,
       _description,
+      _tokenSymbol,
       _tokenAddress,
       _distributorAddress
     );
   }
 
-  function resetDistributorAddress(string _tokenSymbol, address _distributorAddress)
+  function resetDistributorAddress(address _tokenAddress, address _distributorAddress)
       onlyOwner
       public
   {
     // store this app with tokenSymbol as key and app info as value
-    App storage app = apps[_tokenSymbol];
+    App storage app = apps[_tokenAddress];
     app.distributorAddress = _distributorAddress;
   }
 
-  function distribute(string _tokenSymbol, address _to, uint _amount)
+  function distribute(address _tokenAddress, address _to, uint _amount)
     onlyOwner
     public
   {
-    App app = apps(_tokenSymbol);
-    Distributor distributor = Distributor(app.distributorAddress);
+    Distributor distributor = Distributor(apps[_tokenAddress].distributorAddress);
     distributor.distribute(_to, _amount);
   }
 

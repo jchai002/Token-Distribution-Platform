@@ -1,7 +1,7 @@
 pragma solidity ^0.4.15;
 
-import './deps/StandardToken.sol';
-import './deps/Ownable.sol';
+import './base/StandardToken.sol';
+import './base/Ownable.sol';
 
 contract TestToken is StandardToken, Ownable {
     string public constant name = "TestToken";

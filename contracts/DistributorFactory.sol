@@ -10,6 +10,7 @@ contract DistributorFactory is Ownable {
       returns(address)
     {
       Distributor distributor = new Distributor(_token, _rate, _thirdPartyWallet, _internalWallet);
+      /* make the controller contract the owner of the distributor */
       distributor.transferOwnership(_controller);
       return address(distributor);
     }
