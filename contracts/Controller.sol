@@ -4,28 +4,37 @@ import "./base/Ownable.sol";
 import "./Distributor.sol";
 
 contract Controller is Ownable {
-  struct App {
+  struct Token {
     string app;
-    string description;
-    string tokenSymbol;
+    string appDescription;
     address tokenAddress;
     address distributorAddress;
+    address appWallet;
   }
 
   /* mapping of token address to app */
-  mapping (address => App) apps;
+  mapping (address => Token) public tokens;
 
-  function addApp(address _tokenAddress, string _app, string _description, string _tokenSymbol, address _distributorAddress)
-      onlyOwner
-      public
+
+  /* @dev: this is the factory function for deploying distributors */
+  function deployDistributor(address _tokenAddress, uint _conversionRate, string _appName, string _appDescription,  address _appWallet, address _internalWallet)
+    onlyOwner
+    public
   {
-    // store this app with tokenSymbol as key and app info as value
-    apps[_tokenAddress] = App(
-      _app,
-      _description,
-      _tokenSymbol,
+    Distributor distributor = new Distributor(_tokenAddress, _conversionRate, _appWallet, _internalWallet);
+    registerToken(_tokenAddress, _appName, _appDescription, address(distributor), _appWallet);
+  }
+
+  function registerToken(address _tokenAddress, string _appName, string _appDescription, address _distributorAddress, address _appWallet)
+      internal
+  {
+    // store this token with token address as key and info as value
+    tokens[_tokenAddress] = Token(
+      _appName,
+      _appDescription,
       _tokenAddress,
-      _distributorAddress
+      _distributorAddress,
+      _appWallet
     );
   }
 
@@ -34,7 +43,7 @@ contract Controller is Ownable {
       public
   {
     // store this app with tokenSymbol as key and app info as value
-    App storage app = apps[_tokenAddress];
+    Token storage app = tokens[_tokenAddress];
     app.distributorAddress = _distributorAddress;
   }
 
@@ -42,7 +51,7 @@ contract Controller is Ownable {
     onlyOwner
     public
   {
-    Distributor distributor = Distributor(apps[_tokenAddress].distributorAddress);
+    Distributor distributor = Distributor(tokens[_tokenAddress].distributorAddress);
     distributor.distribute(_to, _amount);
   }
 
