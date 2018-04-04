@@ -1,44 +1,65 @@
 const Controller = artifacts.require("./Controller.sol");
+const Distributor = artifacts.require("./Distributor.sol");
 const TestToken = artifacts.require("./TestToken.sol");
-const TestToken2 = artifacts.require("./TestToken2.sol");
 
 module.exports = function() {
-  setup();
+  run();
 };
 
-async function setup() {
-  const accounts = web3.eth.accounts;
-  console.log("accounts", web3.eth.accounts);
+async function run() {
   const controller = await Controller.deployed();
   const token1 = await TestToken.deployed();
-  const token2 = await TestToken2.deployed();
-  const appWallet = accounts[1];
-  const internalWallet = accounts[2];
+  const tokenBeneficiary = web3.eth.accounts[0];
+  const appWallet = web3.eth.accounts[1];
+  const internalWallet = web3.eth.accounts[2];
 
-  // deploy distributors
-  controller.deployDistributor(
-    token1.address,
-    1500,
-    "test app 1",
-    "first app in platform",
-    appWallet,
-    internalWallet
-  );
-
-  controller.deployDistributor(
-    token2.address,
-    2000,
-    "test app 2",
-    "second app in platform",
-    appWallet,
-    internalWallet
-  );
-
+  // get distributor1 instance
   const token1Struct = await controller.tokens(token1.address);
-  const distributor1Address = token1Struct[2];
+  const distributor1Address = token1Struct[3];
+  const distributor1 = Distributor.at(distributor1Address);
 
-  const token2Struct = await controller.tokens(token2.address);
-  const distributor2Address = token2Struct[2];
-  console.log(token1Struct, token2Struct);
-  console.log(distributor1Address, distributor2Address);
+  // test distribute
+  console.log(
+    "await controller.owner()",
+    await controller.owner.call(),
+    tokenBeneficiary
+  );
+  console.log(
+    "distribute test: token balance before",
+    await token1.balanceOf(tokenBeneficiary)
+  );
+  console.log("web3.toWei()", web3.toWei(1, "ether"));
+  await controller.distribute(token1.address, tokenBeneficiary, 1000);
+  console.log(
+    "distribute test: token balance after",
+    await token1.balanceOf(tokenBeneficiary)
+  );
+
+  // buy token test
+  console.log(
+    "buyTokens test: token balance before",
+    await token1.balanceOf(tokenBeneficiary)
+  );
+  await distributor1.buyTokens(tokenBeneficiary, {
+    from: tokenBeneficiary,
+    value: web3.toWei(1, "ether")
+  });
+  console.log(
+    "buyTokens test: token balance after",
+    await token1.balanceOf(tokenBeneficiary)
+  );
+
+  // test fallback function
+  console.log(
+    "fallback test: token balance before",
+    await token1.balanceOf(tokenBeneficiary)
+  );
+  await distributor1.sendTransaction({
+    from: tokenBeneficiary,
+    value: web3.toWei(1, "ether")
+  });
+  console.log(
+    "fallback test: token balance after",
+    await token1.balanceOf(tokenBeneficiary)
+  );
 }

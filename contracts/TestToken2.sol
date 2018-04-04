@@ -7,7 +7,7 @@ contract TestToken2 is StandardToken, Ownable {
     string public constant name = "TestToken";
     string public constant symbol = "TST";
     uint8 public constant decimals = 18;
-    uint public totalSupply = 1000000000;
+    uint256 public totalSupply = 1000000000 * (10 ** uint256(decimals));
     bool public mintingFinished = false;
 
     modifier canMint() {
