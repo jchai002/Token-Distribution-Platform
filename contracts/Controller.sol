@@ -38,13 +38,22 @@ contract Controller is Ownable {
     );
   }
 
+  /* @dev If distributor contract was updated, register the new address in controller */
   function resetDistributorAddress(address _tokenAddress, address _distributorAddress)
       onlyOwner
       public
   {
     // store this app with tokenSymbol as key and app info as value
-    Token storage app = tokens[_tokenAddress];
-    app.distributorAddress = _distributorAddress;
+    tokens[_tokenAddress].distributorAddress =  _distributorAddress;
+  }
+
+  /* @dev If controller contract need to be updated, update the distributor owners to the new controller contract */
+  function transferDistributorOwnership(address _tokenAddress, address _newOwner)
+    onlyOwner
+    public
+  {
+    Distributor distributor = Distributor(tokens[_tokenAddress].distributorAddress);
+    distributor.transferOwnership(_newOwner);
   }
 
   function distribute(address _tokenAddress, address _to, uint _amount)
